@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Galeria Impacto - Muay Thai | Rolagem Vertical e Horizontal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a0f1a 0%, #0c111e 100%);
+            font-family: 'Segoe UI', 'Poppins', 'Roboto', system-ui, -apple-system, 'Inter', sans-serif;
+            color: #eee;
+            overflow-x: auto;
+            overflow-y: auto;
+            min-height: 100vh;
+            scroll-behavior: smooth;
+        }
+
+        /* container principal com estrutura flexível */
+        .gallery-container {
+            padding: 2rem 2rem 3rem 2rem;
+            max-width: 100%;
+            min-width: min-content;
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        /* cabeçalho hero com inspiração muay thai */
+        .hero {
+            text-align: center;
+            padding: 1.5rem 1rem;
+            border-bottom: 2px solid rgba(230, 126, 34, 0.4);
+            margin-bottom: 1rem;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            display: inline-block;
+        }
+        .hero .sub {
+            font-size: 1.1rem;
+            color: #bdc3c7;
+            margin-top: 0.75rem;
+            font-weight: 300;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .hero .badge {
+            display: inline-block;
+            background: #e67e22;
+            color: #0a0f1a;
+            font-weight: bold;
+            padding: 0.25rem 1rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            margin-top: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        /* seção vertical - padrão flex column, cada linha é independente */
+        .vertical-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1.8rem;
+        }
+
+        .section-title {
+            font-size: 1.7rem;
+            font-weight: 600;
+            border-left: 5px solid #e67e22;
+            padding-left: 1rem;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+        .section-title small {
+            font-size: 0.85rem;
+            font-weight: 400;
+            color: #aaa;
+            margin-left: 0.75rem;
+        }
+
+        /* GALLERY HORIZONTAL ROW - rolagem pros lados */
+        .horizontal-scroll {
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            overflow-y: visible;
+            gap: 1.5rem;
+            padding: 1rem 0.5rem 1.8rem 0.5rem;
+            scrollbar-width: thin;
+            scrollbar-color: #e67e22 #2c2f36;
+            border-radius: 24px;
+            cursor: grab;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .horizontal-scroll:active {
+            cursor: grabbing;
+        }
+        /* estilização scrollbar webkit */
+        .horizontal-scroll::-webkit-scrollbar {
+            height: 8px;
+        }
+        .horizontal-scroll::-webkit-scrollbar-track {
+            background: #1e2432;
+            border-radius: 10px;
+        }
+        .horizontal-scroll::-webkit-scrollbar-thumb {
+            background: #e67e22;
+            border-radius: 10px;
+        }
+
+        /* card individual da foto */
+        .photo-card {
+            flex: 0 0 auto;
+            width: 280px;
+            background: #11161f;
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.6);
+            transition: transform 0.25s ease, box-shadow 0.3s;
+            backdrop-filter: blur(2px);
+            border: 1px solid rgba(230,126,34,0.25);
+        }
+        .photo-card:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 25px 35px -12px rgba(0,0,0,0.8);
+            border-color: rgba(230,126,34,0.6);
+        }
+        .photo-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+            transition: all 0.2s;
+            background: #1f2a3a;
+        }
+        .photo-info {
+            padding: 1rem;
+        }
+        .photo-info h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: #f5b041;
+        }
+        .photo-info p {
+            font-size: 0.8rem;
+            color: #b0b7c9;
+            line-height: 1.3;
+        }
+
+        /* segunda seção: grid vertical + cards maiores, mas mantendo scroll horizontal apenas nas linhas internas */
+        .mixed-row {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+
+        /* Dica de rolagem interativa */
+        .scroll-hint {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.75rem;
+            color: #e67e22;
+            background: rgba(230,126,34,0.12);
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            width: fit-content;
+            margin-top: 0rem;
+            backdrop-filter: blur(4px);
+        }
+        .scroll-hint span:first-child {
+            font-size: 1.2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem 1rem 1rem;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            border-top: 1px solid rgba(230,126,34,0.3);
+            margin-top: 1rem;
+        }
+
+        /* responsivo: em telas muito pequenas os cards tem largura ajustada */
+        @media (max-width: 680px) {
+            .gallery-container {
+                padding: 1rem;
+            }
+            .photo-card {
+                width: 240px;
+            }
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            .section-title {
+                font-size: 1.4rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .photo-card {
+                width: 210px;
+            }
+            .photo-card img {
+                height: 180px;
+            }
+        }
+
+        /* Efeito de imagem placeholder suave */
+        img {
+            background: #2c3e4e;
+        }
+
+        .custom-cursor {
+            cursor: default;
+        }
+
+        /* interação suave de clique e arraste */
+        .horizontal-scroll {
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="gallery-container">
+    <div class="hero">
+        <h1>⚡ MUAY THAI ⚡</h1>
+        <div class="sub">Arte das oito armas • Garra, tradição e potência</div>
+        <div class="badge">GALERIA INTERATIVA | ROLAGEM ↓ →</div>
+    </div>
+
+    <!-- SEÇÃO 1: ROLAGEM VERTICAL E HORIZONTAL -->
+    <div class="vertical-section">
+        <div class="section-title">
+            🔥 Clinch & Poder <small>→ arraste lateralmente</small>
+        </div>
+        <div class="scroll-hint">
+            <span>🖱️➡️</span> <span>Role para os lados para ver mais fotos</span>
+        </div>
+        <!-- ROLAGEM HORIZONTAL (rolagem pros lados) -->
+        <div class="horizontal-scroll" id="scrollRow1">
+            <!-- Cards horizontais com imagens temáticas de muay thai (via Unsplash e placeholder premium com imagens reais de luta / treino) -->
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1552074284-5e88ef1d5b1b?w=500&h=400&fit=crop" alt="Muay Thai clinch" loading="lazy">
+                <div class="photo-info">
+                    <h4>🥊 Clinch Dominante</h4>
+                    <p>Controle e joelhadas no clinch - essência do Muay Thai tailandês.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1555597673-b21d5c935865?w=500&h=400&fit=crop" alt="Chute baixo devastador" loading="lazy">
+                <div class="photo-info">
+                    <h4>⚡ Low Kick Brutal</h4>
+                    <p>Chute baixo que desestabiliza qualquer adversário.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1549719386-74dfcbf7dbed?w=500&h=400&fit=crop" alt="Treino de saco pesado" loading="lazy">
+                <div class="photo-info">
+                    <h4>🥋 Força & Condicionamento</h4>
+                    <p>Treino intenso no saco pesado, preparação de campeões.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1574680178052-0c1b36be4489?w=500&h=400&fit=crop" alt="Cotidiano na arena" loading="lazy">
+                <div class="photo-info">
+                    <h4>🏟️ Rituais Wai Kru</h4>
+                    <p>Respeito e tradição antes do combate.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=500&h=400&fit=crop" alt="Luta no ringue" loading="lazy">
+                <div class="photo-info">
+                    <h4>🔥 Sangue no Ringue</h4>
+                    <p>Intensidade máxima em combate profissional.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1581009137042-c552e485697a?w=500&h=400&fit=crop" alt="Sombrero e técnica" loading="lazy">
+                <div class="photo-info">
+                    <h4>🎯 Pontaria e Velocidade</h4>
+                    <p>Chute lateral característico da arte marcial tailandesa.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1598620617134-2a2b4cd1dcd3?w=500&h=400&fit=crop" alt="Atleta focado" loading="lazy">
+                <div class="photo-info">
+                    <h4>🧠 Mente de Aço</h4>
+                    <p>Foco e disciplina são marcas dos lutadores.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEGUNDA SEÇÃO: mais variedade vertical, mas com outra galeria horizontal embaixo -->
+    <div class="mixed-row">
+        <div class="section-title">
+            🥇 Técnicas & Tradição <small>→ deslize para explorar</small>
+        </div>
+        <div class="horizontal-scroll" id="scrollRow2">
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1595079676874-6f3cfb5bc90b?w=500&h=400&fit=crop" alt="Cotovelada afiada" loading="lazy">
+                <div class="photo-info">
+                    <h4>💥 Cotovelada Sokin</h4>
+                    <p>Arma mortal em curta distância.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1600712242805-5f78671b24da?w=500&h=400&fit=crop" alt="Defesa com antebraço" loading="lazy">
+                <div class="photo-info">
+                    <h4>🛡️ Defesa Blindada</h4>
+                    <p>Bloqueios sólidos com antebraços.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1552058544-f2b08422138a?w=500&h=400&fit=crop" alt="Treino de chute alto" loading="lazy">
+                <div class="photo-info">
+                    <h4>📈 Chute Alto Preciso</h4>
+                    <p>Flexibilidade e potência em movimento.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1608026205671-33a8b6fa17b1?w=500&h=400&fit=crop" alt="Equipamento tradicional" loading="lazy">
+                <div class="photo-info">
+                    <h4>🧤 Mongkon & Prajioud</h4>
+                    <p>Adereços sagrados do lutador Muay Thai.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1583479825566-9a910e16c1b0?w=500&h=400&fit=crop" alt="Competição emocionante" loading="lazy">
+                <div class="photo-info">
+                    <h4>🏆 Nocaute Artístico</h4>
+                    <p>Momento decisivo na luta.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&h=400&fit=crop" alt="Muay boran" loading="lazy">
+                <div class="photo-info">
+                    <h4>📿 Muay Boran</h4>
+                    <p>Raízes ancestrais do boxe tailandês.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TERCEIRA SEÇÃO: mais imagens com ênfase em treino e ação + rolagem lateral nova -->
+    <div class="vertical-section" style="margin-top: 0.5rem;">
+        <div class="section-title">
+            🧨 Arena & Treino <small>role pros lados e também pra baixo</small>
+        </div>
+        <div class="horizontal-scroll" id="scrollRow3">
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1599058917212-d750089bc07e?w=500&h=400&fit=crop" alt="Sombra explosiva" loading="lazy">
+                <div class="photo-info">
+                    <h4>🥊 Shadow Boxing</h4>
+                    <p>Aprimorando movimentos e fluidez.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=500&h=400&fit=crop" alt="Corda de pular" loading="lazy">
+                <div class="photo-info">
+                    <h4>🏃‍♂️ Preparo Físico</h4>
+                    <p>Agilidade e resistência para 5 rounds.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1551893665-f843f6c556e0?w=500&h=400&fit=crop" alt="treino de pares" loading="lazy">
+                <div class="photo-info">
+                    <h4>🤝 Técnica em Duplas</h4>
+                    <p>Aprimorando combinações com parceiro.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=500&h=400&fit=crop" alt="Nak muay" loading="lazy">
+                <div class="photo-info">
+                    <h4>👊 Guerreiro Nak Muay</h4>
+                    <p>Orgulho e tradição na pele.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1608225790240-d319b5b5af09?w=500&h=400&fit=crop" alt="Cordas do ringue" loading="lazy">
+                <div class="photo-info">
+                    <h4>🥊 Entre as Cordas</h4>
+                    <p>Estratégia e pressão psicológica.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1543351611-58f69d7c1781?w=500&h=400&fit=crop" alt="Muay thai feminino" loading="lazy">
+                <div class="photo-info">
+                    <h4>⚡ Força Feminina</h4>
+                    <p>Mulheres revolucionando o esporte.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BÔNUS: quarto bloco com foco em fotojornalismo e estádio lendário -->
+    <div class="vertical-section">
+        <div class="section-title">
+            🏅 Lendas do Stadium <small>Rajadamnern & Lumpinee</small>
+        </div>
+        <div class="horizontal-scroll" id="scrollRow4">
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1570724062146-4d4a2c6c6e4e?w=500&h=400&fit=crop" alt="Lumpinee Stadium" loading="lazy">
+                <div class="photo-info">
+                    <h4>🏟️ Lumpinee</h4>
+                    <p>O templo do Muay Thai mundial.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1600189261867-3b5c6b4c6bc7?w=500&h=400&fit=crop" alt="Campeão com cinturão" loading="lazy">
+                <div class="photo-info">
+                    <h4>👑 Cinturão Sagrado</h4>
+                    <p>Glória eterna para os guerreiros.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1596495509489-987e1e788fae?w=500&h=400&fit=crop" alt="Técnica avançada" loading="lazy">
+                <div class="photo-info">
+                    <h4>🌀 Variação de Chute</h4>
+                    <p>Roundhouse kick na veia tailandesa.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1583512603805-3cc6b41f4f11?w=500&h=400&fit=crop" alt="Treino de campo" loading="lazy">
+                <div class="photo-info">
+                    <h4>🌴 Treino na Tailândia</h4>
+                    <p>Campo tradicional ao ar livre.</p>
+                </div>
+            </div>
+            <div class="photo-card">
+                <img src="https://images.unsplash.com/photo-1614730321146-b6fd8bde590e?w=500&h=400&fit=crop" alt="Alta intensidade" loading="lazy">
+                <div class="photo-info">
+                    <h4>🔥 Espírito Imortal</h4>
+                    <p>A entrega total no octógono/ringue.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        🥊 Galeria Muay Thai — Role para baixo para ver todas as seções e arraste as imagens para os lados. <br>
+        Inspirado na cultura tailandesa | Força, Respeito e Evolução
+    </footer>
+</div>
+
+<script>
+    (function() {
+        // Melhora a experiência de rolagem horizontal: permite arrastar com o mouse em qualquer galeria horizontal
+        const scrollContainers = document.querySelectorAll('.horizontal-scroll');
+        
+        scrollContainers.forEach(container => {
+            let isDown = false;
+            let startX;
+            let scrollLeft;
+            
+            // Previne eventos de arraste em imagens dentro do container (evita seleção acidental)
+            container.addEventListener('mousedown', (e) => {
+                // Se clicou em imagem ou dentro, mas queremos arrastar o container
+                isDown = true;
+                startX = e.pageX - container.offsetLeft;
+                scrollLeft = container.scrollLeft;
+                container.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+            
+            container.addEventListener('mouseleave', () => {
+                isDown = false;
+                container.style.cursor = 'grab';
+            });
+            
+            container.addEventListener('mouseup', () => {
+                isDown = false;
+                container.style.cursor = 'grab';
+            });
+            
+            container.addEventListener('mousemove', (e) => {
+                if (!isDown) return;
+                e.preventDefault();
+                const x = e.pageX - container.offsetLeft;
+                const walk = (x - startX) * 1.2; // velocidade do arraste
+                container.scrollLeft = scrollLeft - walk;
+            });
+            
+            // cursor inicial indica que é rolável
+            container.style.cursor = 'grab';
+            
+            // Suporte para touch (mobile) nativo já funciona com overflow-scroll, mas sem conflito
+            // adicionamos um pequeno toque para não travar o scroll padrão, sem necessidade extra.
+            container.addEventListener('dragstart', (e) => {
+                e.preventDefault();
+                return false;
+            });
+        });
+
+        // efeito adicional: mensagem suave de scroll lateral caso usuário não perceba (pequeno blink na primeira seção)
+        const firstScrollHint = document.querySelector('.scroll-hint');
+        if(firstScrollHint) {
+            setTimeout(() => {
+                firstScrollHint.style.transition = 'opacity 0.4s';
+                firstScrollHint.style.opacity = '0.7';
+                setTimeout(() => {
+                    firstScrollHint.style.opacity = '1';
+                }, 800);
+            }, 1000);
+        }
+
+        // Garantir que a página inteira tenha scroll vertical nativo (já tem pelo conteúdo)
+        // e rolagem horizontal geral do body apenas se necessário (conteúdo extra, mas desabilitamos overflow-x no body)
+        // mas mantemos o overflow-x: auto no body? O body já tem overflow-x: auto do reset, mas para evitar barra horizontal geral indesejada
+        // apenas os containers horizontais rolam, mas caso exista largura maior que viewport, ajustamos
+        document.body.style.overflowX = 'hidden';
+        // Mantém scroll vertical livre.
+        document.documentElement.style.overflowY = 'auto';
+    })();
+</script>
+</body>
+</html>
